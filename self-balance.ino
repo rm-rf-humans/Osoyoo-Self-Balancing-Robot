@@ -1,3 +1,4 @@
+//The correct headers instead of <PinChangeInt.h> for this sketch are:
 #include <PinChangeInterrupt.h>
 #include <PinChangeInterruptBoards.h>
 #include <PinChangeInterruptPins.h>
