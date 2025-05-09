@@ -28,13 +28,18 @@ int16_t ax, ay, az, gx, gy, gz;
 #define PinA_right 4 //Interrupt 1
 //Declare custom variables
 
+volatile float log_t, log_ang, log_err,
+               log_Uang, log_Uspd, log_Uturn,
+               log_gx, log_gy, log_gz;
+volatile bool  log_ready = false;
+
 int time;
 byte inByte; //Serial receive byte
 int num;
 double Setpoint;//Angle DIP setting point, input, output
 double Setpoints, Outputs = 0;//Speed DIP setting point, input, output
-double kp = 45, ki = 500.0, kd = 3.00;//You need to modify the parameters, angle PD control.
-double kp_speed =5.50, ki_speed = 0.30, kd_speed = 0.10;// You need to modify the parameters, Speed PD control.
+double kp = 50, ki = 500.0, kd = 3.00;//You need to modify the parameters, angle PD control.
+double kp_speed =5.50, ki_speed = 0.04, kd_speed = 0.10;// You need to modify the parameters, Speed PD control.
 double kp_turn = 23, ki_turn = 0, kd_turn = 0.3;//Rotating PD settings
 const double PID_Original[6] = {40, 0.0, 0.6, 5.20, 0.25, 0.0}; //Restore default PID parameters
 //Steering PID parameters
@@ -167,6 +172,34 @@ void inter()
   balancecar.posture++;
   balancecar.pwma(Outputs, turnoutput, kalmanfilter.angle, kalmanfilter.angle6, turnl, turnr, spinl,\
                   spinr, front, back, kalmanfilter.accelz, IN1M, IN2M, IN3M, IN4M, PWMA, PWMB);//Total PWM output of car
+  
+  log_t   = millis() * 0.001f;            // convert to seconds
+  log_ang = kalmanfilter.angle;           // the Kalman‑filtered angle
+  log_ready = true;     
+  
+  // compute the extra signals
+  float t    = millis() * 0.001f;
+  float ang  = kalmanfilter.angle;
+  float err  = (kalmanfilter.angle + angle0) - Setpoint;
+  float Uang = balancecar.angleoutput;
+  float Uspd = Outputs;
+  float Uturn= turnoutput;
+  float gx   = kalmanfilter.Gyro_x;
+  float gy   = kalmanfilter.Gyro_y;
+  float gz   = kalmanfilter.Gyro_z;
+
+  // latch into volatile buffer
+  log_t     = t;
+  log_ang   = ang;
+  log_err   = err;
+  log_Uang  = Uang;
+  log_Uspd  = Uspd;
+  log_Uturn = Uturn;
+  log_gx    = gx;
+  log_gy    = gy;
+  log_gz    = gz;
+  log_ready = true;
+  
 }
 /********************Interrupt timing 5ms timing interrupt********************/
 void SendAutoUp()
@@ -279,6 +312,33 @@ void ResetCarState()
 /********************Main cycle********************/
 void loop() 
 {
+  
+  if (log_ready) {
+    noInterrupts();
+      float t    = log_t;
+      float ang  = log_ang;
+      float err  = log_err;
+      float Uang = log_Uang;
+      float Uspd = log_Uspd;
+      float Uturn= log_Uturn;
+      float gx   = log_gx;
+      float gy   = log_gy;
+      float gz   = log_gz;
+      log_ready = false;
+    interrupts();
+
+    // now print the full set of fields
+    Serial.print(t,    3); Serial.print(',');
+    Serial.print(ang,  3); Serial.print(',');
+    Serial.print(err,  3); Serial.print(',');
+    Serial.print(Uang, 3); Serial.print(',');
+    Serial.print(Uspd, 3); Serial.print(',');
+    Serial.print(Uturn,3); Serial.print(',');
+    Serial.print(gx,   1); Serial.print(',');
+    Serial.print(gy,   1); Serial.print(',');
+    Serial.println(gz,1);
+  }
+
   String returnstr = "$0,0,0,0,0,0,0,0,0,0,0,0cm,8.2V#";//Default sending
   //In the main function, the cycle detection and the superposition pulse measurement are used to determine the speed of the car. The change of the level can increase the pulse number of the motor and ensure the accuracy of the car.
   attachInterrupt(0, Code_left, CHANGE);
