@@ -34,6 +34,9 @@ volatile float log_t, log_ang, log_err,
                log_gx, log_gy, log_gz;
 volatile bool  log_ready = false;
 
+volatile int16_t raw_ax, raw_ay, raw_az,
+                 raw_gx, raw_gy, raw_gz;
+
 int time;
 byte inByte; //Serial receive byte
 int num;
@@ -156,6 +159,9 @@ void inter()
   sei();//enable interrupt
   countpluse();//Pulse superposition subfunction
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);//IIC get MPU6050 six axis data  ax ay az gx gy gz
+  raw_ax = ax;         raw_ay = ay;         raw_az = az;
+  raw_gx = gx;         raw_gy = gy;         raw_gz = gz;
+  
   kalmanfilter.Angletest(ax, ay, az, gx, gy, gz, dt, Q_angle, Q_gyro, R_angle, C_0, K1);//Obtaining angle angle and Kaman filtering
   angleout();//angle PD control
   speedcc++;
@@ -325,6 +331,9 @@ void loop()
       float gx   = log_gx;
       float gy   = log_gy;
       float gz   = log_gz;
+      //----Raw Values-----
+      int16_t axr = raw_ax, ayr = raw_ay, azr = raw_az;
+      int16_t gxr = raw_gx, gyr = raw_gy, gzr = raw_gz;
       log_ready = false;
     interrupts();
 
@@ -335,9 +344,14 @@ void loop()
     Serial.print(Uang, 3); Serial.print(',');
     Serial.print(Uspd, 3); Serial.print(',');
     Serial.print(Uturn,3); Serial.print(',');
+    Serial.print("----"); Serial.print(',');
     Serial.print(gx,   1); Serial.print(',');
     Serial.print(gy,   1); Serial.print(',');
-    Serial.println(gz,1);
+    Serial.print(gz,   1); Serial.print(',');
+    Serial.print(gxr);  Serial.print(',');
+    Serial.print(gyr);  Serial.print(',');
+    Serial.println(gzr);
+    
   }
 
   String returnstr = "$0,0,0,0,0,0,0,0,0,0,0,0cm,8.2V#";//Default sending
