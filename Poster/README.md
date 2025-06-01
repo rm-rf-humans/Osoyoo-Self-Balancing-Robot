@@ -1,5 +1,6 @@
  ## Disclaimer
  This [poster](./poster.pdf) LaTeX code is taken from the attached resources below:
+ 
  [![Overleaf Template](https://img.shields.io/badge/Overleaf-Template-success?logo=overleaf)](https://www.overleaf.com/latex/templates/unofficial-poster-template-for-uchicago-computer-science/kbbmbdxwbypb)
 
 A fork of Gemini. Also available on Overleaf.
