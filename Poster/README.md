@@ -1,4 +1,5 @@
-# Unofficial Poster Template for University of Cambridge
+ ## Disclaimer
+ This [poster](./poster.pdf) LaTeX code is taken from the attached resources below:
  [![Overleaf Template](https://img.shields.io/badge/Overleaf-Template-success?logo=overleaf)](https://www.overleaf.com/latex/templates/unofficial-poster-template-for-uchicago-computer-science/kbbmbdxwbypb)
 
 A fork of Gemini. Also available on Overleaf.
@@ -17,17 +18,12 @@ A fork of Gemini. Also available on Overleaf.
 
 1. Copy the files in this repository (or clone the repository)
 
-1. In `poster.tex`, set up your paper size, column layout, and scale the
+2. In `poster.tex`, set up your paper size, column layout, and scale the
    content as necessary
 
-1. Make a copy of `beamercolorthemegemini.sty`, update the `\usecolortheme`
+3. Make a copy of `beamercolorthemegemini.sty`, update the `\usecolortheme`
    line in `poster.tex`, and theme the poster to your liking (optional, but
    highly recommended)
 
-1. Run `make` to build your poster
-
-## FAQ
-
-See the [FAQ] in the Wiki for answers to frequently asked questions such as how
-to add an institution logo to the poster.
+4. Run `make` to build your poster
 
